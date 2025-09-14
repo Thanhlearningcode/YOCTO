@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Yocto Project — Notes & Guides</title>
+    <meta name="description" content="Professional Yocto Project documentation: concepts, layers, BitBake, QEMU, SDK, Raspberry Pi 4, kernel workflow.">
+    <meta property="og:title" content="Yocto Project — Notes & Guides">
+    <meta property="og:description" content="Professional Yocto Project documentation: concepts, layers, BitBake, QEMU, SDK, Raspberry Pi 4, kernel workflow.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/favicon.svg">
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="manifest" href="site.webmanifest">
+    <meta name="theme-color" content="#0ea5e9">
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { fontFamily: { sans: ['Inter','ui-sans-serif','system-ui'] } } }, darkMode: 'class' }
+    </script>
+    <!-- Marked.js -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- highlight.js -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/styles/github-dark.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/highlight.js@11.9.0/lib/highlight.min.js"></script>
+    <!-- Lunr for full-text search -->
+    <script src="https://cdn.jsdelivr.net/npm/lunr/lunr.min.js"></script>
+    <style>
+      .prose pre code { white-space: pre; }
+      .nav-active { background-color: rgb(14 165 233 / 0.15); }
+      @media (min-width: 1024px) {
+        .sticky-sidebar { position: sticky; top: 1rem; height: calc(100vh - 2rem); }
+        .sticky-toc { position: sticky; top: 1rem; max-height: calc(100vh - 2rem); overflow:auto; }
+      }
+      #progressBar { position: fixed; top: 0; left: 0; height: 3px; background: #0ea5e9; width: 0; z-index: 60; }
+      .toc a { display:block; padding:4px 8px; border-radius:8px; }
+      .toc a:hover { background: rgba(148,163,184,.15); }
+      .copy-btn { position:absolute; top:8px; right:8px; font-size:12px; padding:4px 8px; border:1px solid rgba(148,163,184,.5); border-radius:8px; background: rgba(255,255,255,.6); }
+      .dark .copy-btn { background: rgba(2,6,23,.6); }
+    :root {
+    --brand-primary: #0ea5e9;
+    --brand-grad-1: #22d3ee;
+    --brand-grad-2: #60a5fa;
+    --brand-grad-3: #a78bfa;
+  }
+  .brand-gradient { background: linear-gradient(90deg, var(--brand-grad-1), var(--brand-grad-2), var(--brand-grad-3)); }
+:root {
+    --rhythm: 1rem;
+    --rhythm-sm: .75rem;
+    --rhythm-lg: 1.25rem;
+  }
+  /* Vertical rhythm */
+  .prose { max-width: 78ch; }
+  .prose > :where(p, ul, ol, pre, table, blockquote, img, figure, h2, h3, h4):not(:last-child) {
+    margin-bottom: var(--rhythm);
+  }
+  .prose p { line-height: 1.85; margin: .6em 0; }
+  .prose h2 { margin-top: calc(var(--rhythm) * 2); margin-bottom: .8rem; scroll-margin-top: 90px; }
+  .prose h3 { margin-top: calc(var(--rhythm) * 1.6); margin-bottom: .6rem; scroll-margin-top: 90px; }
+  .prose h4 { margin-top: calc(var(--rhythm) * 1.2); margin-bottom: .5rem; scroll-margin-top: 90px; }
+  .prose ul, .prose ol { padding-left: 1.2rem; }
+  .prose li { margin: .25em 0; }
+  .prose pre { margin: var(--rhythm) 0; padding: 1rem; border-radius: 12px; border: 1px solid rgba(148,163,184,.35); background: rgba(148,163,184,.08); }
+  .dark .prose pre { background: rgba(2,6,23,.6); }
+  .prose table { margin: var(--rhythm) 0; }
+  .prose hr { margin: calc(var(--rhythm) * 1.6) 0; border-color: rgba(148,163,184,.35); }
+  /* Sidebar nav spacing */
+  #navList > button { margin-bottom: .25rem; padding-top: .55rem; padding-bottom: .55rem; }
+  /* ToC spacing */
+  #toc a { margin-bottom: .2rem; }
+/* Command palette */
+  .cmdk-backdrop { position: fixed; inset:0; background: rgba(2,6,23,.45); backdrop-filter: blur(2px); display:none; z-index:70; }
+  .cmdk { position: fixed; top:10vh; left:50%; transform: translateX(-50%); width:min(720px,92vw);
+          background: rgba(255,255,255,.95); color:#0b1220; border:1px solid rgba(148,163,184,.35);
+          border-radius:16px; box-shadow: 0 20px 60px rgba(2,6,23,.35); display:none; z-index:71; }
+  .dark .cmdk { background: rgba(2,6,23,.95); color:#e5e7eb; border-color: rgba(30,41,59,.8); }
+  .cmdk input { width:100%; border:0; outline:0; padding:14px 16px; background:transparent; font-size:16px; border-bottom:1px solid rgba(148,163,184,.25); }
+  .cmdk-list { max-height:60vh; overflow:auto; }
+  .cmdk-item { padding:10px 14px; cursor:pointer; display:flex; justify-content:space-between; }
+  .cmdk-item:hover, .cmdk-item[aria-selected="true"] { background: rgba(148,163,184,.15); }
+  mark { background: rgba(250,204,21,.35); padding:0 .1em; border-radius:4px; }
+  /* Layout controls */
+  :root { --content-max: 78ch; --rhythm: 1rem; }
+  .prose { max-width: var(--content-max); }
+  .layout-wide .prose { --content-max: 96ch; }
+  .layout-max .prose { --content-max: 110ch; }
+  .compact .prose { --rhythm: .75rem; }
+</style>
+  <!-- Google Fonts: Inter & Fira Code -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300..900&family=Fira+Code:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root { --base-size: 16px; --max-measure: 78ch; }
+    html { font-size: var(--base-size); }
+    body { font-feature-settings:"ss01","cv02","cv03","cv04","cv09"; text-rendering: optimizeLegibility; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+    .prose { max-width: var(--max-measure); }
+    .prose p { line-height: 1.85; letter-spacing: 0.005em; }
+    .prose h1,.prose h2,.prose h3,.prose h4 { letter-spacing: 0.01em; }
+    code, pre, kbd, samp { font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace; font-variant-ligatures: contextual; }
+    /* Hero gradient and subtle textures */
+    header::after { content:""; position:absolute; inset:auto 0 0 0; height:3px; background: linear-gradient(90deg, #22d3ee, #60a5fa, #a78bfa); opacity:.7; }
+    .hero-bg { background: radial-gradient(1200px 400px at 10% -10%, rgba(56,189,248,.25), transparent), radial-gradient(1000px 360px at 90% -20%, rgba(139,92,246,.18), transparent); }
+    /* Improve buttons */
+    .btn { padding:.5rem .75rem; border-radius: .75rem; border:1px solid rgba(148,163,184,.35); }
+    .btn:hover { background: rgba(148,163,184,.12); }
+    /* Active ToC link */
+    .toc a.active { background: rgba(14,165,233,.15); color: rgb(14,165,233); }
+    /* Better link styles inside prose */
+    .prose a { text-decoration: none; border-bottom: 1px dashed rgba(56,189,248,.45); }
+    .prose a:hover { background: rgba(56,189,248,.12); }
+    /* Refined blockquote */
+    .prose blockquote { border-left: 4px solid rgba(56,189,248,.55); background: rgba(56,189,248,.08); padding:.75rem 1rem; border-radius:.5rem; }
+    /* Tables */
+    .prose table { border-collapse: collapse; width: 100%; overflow: auto; display: block; }
+    .prose table th, .prose table td { border: 1px solid rgba(148,163,184,.35); padding:.5rem .6rem; }
+    .prose table thead th { background: rgba(148,163,184,.12); }
+    /* Code block wrapping */
+    pre code { white-space: pre-wrap; word-break: break-word; }
+    /* Floating back-to-top */
+    #backToTop { position: fixed; right: 16px; bottom: 16px; display: none; padding:.6rem .7rem; border-radius: 999px; border:1px solid rgba(148,163,184,.35); background: rgba(255,255,255,.7); }
+    .dark #backToTop { background: rgba(2,6,23,.7); }
+    /* Font size controls */
+    .font-controls button { border:1px solid rgba(148,163,184,.35); border-radius:.75rem; padding:.35rem .55rem; }
+  :root {
+    --brand-primary: #0ea5e9;
+    --brand-grad-1: #22d3ee;
+    --brand-grad-2: #60a5fa;
+    --brand-grad-3: #a78bfa;
+  }
+  .brand-gradient { background: linear-gradient(90deg, var(--brand-grad-1), var(--brand-grad-2), var(--brand-grad-3)); }
+/* Command palette */
+  .cmdk-backdrop { position: fixed; inset:0; background: rgba(2,6,23,.45); backdrop-filter: blur(2px); display:none; z-index:70; }
+  .cmdk { position: fixed; top:10vh; left:50%; transform: translateX(-50%); width:min(720px,92vw);
+          background: rgba(255,255,255,.95); color:#0b1220; border:1px solid rgba(148,163,184,.35);
+          border-radius:16px; box-shadow: 0 20px 60px rgba(2,6,23,.35); display:none; z-index:71; }
+  .dark .cmdk { background: rgba(2,6,23,.95); color:#e5e7eb; border-color: rgba(30,41,59,.8); }
+  .cmdk input { width:100%; border:0; outline:0; padding:14px 16px; background:transparent; font-size:16px; border-bottom:1px solid rgba(148,163,184,.25); }
+  .cmdk-list { max-height:60vh; overflow:auto; }
+  .cmdk-item { padding:10px 14px; cursor:pointer; display:flex; justify-content:space-between; }
+  .cmdk-item:hover, .cmdk-item[aria-selected="true"] { background: rgba(148,163,184,.15); }
+  mark { background: rgba(250,204,21,.35); padding:0 .1em; border-radius:4px; }
+  /* Layout controls */
+  :root { --content-max: 78ch; --rhythm: 1rem; }
+  .prose { max-width: var(--content-max); }
+  .layout-wide .prose { --content-max: 96ch; }
+  .layout-max .prose { --content-max: 110ch; }
+  .compact .prose { --rhythm: .75rem; }
+</style>
+</head>
+  <body class="bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100">
+    <div id="progressBar"></div>
+    <header class="hero-bg border-b border-slate-200/50 dark:border-slate-800/80 bg-white/80 dark:bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 py-3 flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-sky-500 grid place-items-center">
+          <span class="text-white font-bold">Y</span>
+        </div>
+        <div class="flex-1">
+          <h1 class="text-lg lg:text-xl font-bold tracking-tight">Yocto Project — Notes & Guides</h1>
+          <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">
+            End-to-end docs for embedded Linux using Yocto (Poky, layers, BitBake, SDK, QEMU, RPi4, kernel...)
+          </p>
+        </div>
+        <div class="flex items-center gap-2 font-controls"><select id="themeSelect" title="Theme" class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-sm"><option value="sky">Sky</option><option value="emerald">Emerald</option><option value="violet">Violet</option></select><button id="layoutWide" class="text-sm btn">Wide</button><button id="layoutMax" class="text-sm btn">Max</button><button id="layoutCompact" class="text-sm btn">Compact</button><button id="openCmd" class="text-sm btn">⌘K</button><button id="installBtn" class="text-sm btn hidden">Install</button><button id="fontMinus" title="Smaller A" class="text-sm">A−</button><button id="fontPlus" title="Larger A" class="text-sm">A+</button>
+          <button id="themeToggle" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm hover:bg-slate-100 dark:hover:bg-slate-800 transition">
+            Toggle theme
+          </button>
+          <a id="githubLink" href="#" target="_blank" class="px-3 py-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white text-sm transition hidden">View on GitHub</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 py-6 grid lg:grid-cols-[300px,1fr,260px] gap-6">
+      <!-- Sidebar -->
+      <aside class="sticky-sidebar bg-white/60 dark:bg-slate-900/50 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 p-4 overflow-y-auto">
+        <div class="mb-3">
+          <div class="flex items-center justify-between gap-3">
+            <h2 class="text-base font-semibold">Documents</h2>
+            <button id="collapseBtn" class="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300">Collapse</button>
+          </div>
+          <div class="mt-2">
+            <input id="searchInput" type="search" placeholder="Full-text search..." class="w-full px-3 py-2 rounded-xl border border-slate-200 dark:border-slate-700 bg-white/80 dark:bg-slate-800/70 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+          </div>
+        </div>
+        <nav id="navList" class="space-y-1 text-sm pr-1"></nav>
+        <div class="mt-4 pt-4 border-t border-slate-200/60 dark:border-slate-800/70 text-xs text-slate-500 dark:text-slate-400">
+          <p><strong>Tip:</strong> Use the search box to search across all docs. Click the share button inside a page to copy a deep link.</p>
+        </div>
+      </aside>
+
+      <!-- Content -->
+      <section class="min-h-[60vh]"><div id="hero" class="not-prose mb-6"></div>
+        <article id="content" class="prose prose-slate dark:prose-invert lg:prose-lg max-w-none relative">
+          <h2>Welcome</h2>
+          <p>This site hosts practical notes and tutorials around the <strong>Yocto Project</strong> for embedded Linux: concepts, layers, recipes, QEMU simulations, SDK build, Raspberry Pi 4 images, and kernel workflows.</p>
+          <div class="grid sm:grid-cols-3 gap-4 my-6">
+            <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50">
+              <h3 class="m-0 text-base font-semibold">Why Yocto?</h3>
+              <p class="m-0 text-sm">Standardizes custom embedded Linux across many hardware platforms with reproducible builds and a rich ecosystem.</p>
+            </div>
+            <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50">
+              <h3 class="m-0 text-base font-semibold">Key Tools</h3>
+              <p class="m-0 text-sm">BitBake • Layers • Recipes • Devtool • SDK • QEMU • Kernel customization</p>
+            </div>
+            <div class="p-4 rounded-2xl border border-slate-200 dark:border-slate-800 bg-white/60 dark:bg-slate-900/50">
+              <h3 class="m-0 text-base font-semibold">Hardware</h3>
+              <p class="m-0 text-sm">Focus on Raspberry Pi 4 (ARM64), but concepts are portable to other boards.</p>
+            </div>
+          </div>
+        </article>
+        <div id="prevNext" class="mt-6 flex items-center justify-between text-sm"></div>
+      </section>
+
+      <!-- ToC -->
+      <aside class="sticky-toc bg-white/60 dark:bg-slate-900/50 rounded-2xl border border-slate-200/60 dark:border-slate-800/70 p-4 overflow-y-auto">
+        <h2 class="text-base font-semibold mb-2">On this page</h2>
+        <nav id="toc" class="toc text-sm space-y-1"></nav>
+      </aside>
+    </main>
+
+    <footer class="mt-6 border-t border-slate-200 dark:border-slate-800">
+      <div class="max-w-7xl mx-auto px-4 py-6 text-xs text-slate-500 dark:text-slate-400">
+        <p>Release <strong>v2025.09.14-0441</strong> • &copy; <span id="year"></span> Yocto Notes. Built with Tailwind, Marked, highlight.js, and Lunr. Deployed on GitHub Pages.</p>
+      </div>
+    </footer>
+
+    <script>
+
+function normalizeMarkdown(md) {
+  // Remove BOM
+  md = md.replace(/^\uFEFF/, '');
+  const lines = md.split(/\r?\n/);
+  let out = [];
+  let inCode = false;
+  let blankCount = 0;
+  for (let i=0; i<lines.length; i++) {
+    const line = lines[i];
+    // detect fenced code ```
+    if (/^```/.test(line.trim())) {
+      inCode = !inCode;
+      out.push(line.replace(/\s+$/, ''));
+      blankCount = 0;
+      continue;
+    }
+    if (!inCode) {
+      const trimmedRight = line.replace(/\s+$/, '');
+      if (trimmedRight.trim() === '') {
+        blankCount += 1;
+        if (blankCount <= 1) out.push(''); // collapse multiple blanks to single
+      } else {
+        blankCount = 0;
+        out.push(trimmedRight);
+      }
+    } else {
+      out.push(line); // keep code as-is
+    }
+  }
+  return out.join('\n').trim() + '\n';
+}
+      // Theme
+      const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const savedTheme = localStorage.getItem('theme');
+      if ((savedTheme === 'dark') || (!savedTheme && prefersDark)) { document.documentElement.classList.add('dark'); }
+      document.getElementById('themeToggle').addEventListener('click', () => {
+        document.documentElement.classList.toggle('dark');
+        localStorage.setItem('theme', document.documentElement.classList.contains('dark') ? 'dark' : 'light');
+      });
+      document.getElementById('year').textContent = new Date().getFullYear();
+
+      // Service worker
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+      }
+
+      const navList = document.getElementById('navList');
+      const searchInput = document.getElementById('searchInput');
+      const contentEl = document.getElementById('content');
+      const collapseBtn = document.getElementById('collapseBtn');
+      const githubLink = document.getElementById('githubLink');
+      const tocEl = document.getElementById('toc');
+      const prevNextEl = document.getElementById('prevNext');
+      const progressBar = document.getElementById('progressBar');
+
+      // githubLink.href = "https://<your-username>.github.io/<your-repo>/";
+      // githubLink.classList.remove('hidden');
+
+      let docs = [];
+      let currentFile = null;
+      let idx = null; // Lunr index
+      let docsMap = {}; // id -> doc
+
+      function setProgress() {
+        const h = document.documentElement;
+        const scrolled = (h.scrollTop) / (h.scrollHeight - h.clientHeight);
+        progressBar.style.width = (scrolled * 100) + '%';
+      }
+      document.addEventListener('scroll', setProgress, { passive: true });
+
+      function renderNav(items) {
+        navList.innerHTML = '';
+        items.forEach((doc) => {
+          const btn = document.createElement('button');
+          btn.className = "w-full text-left px-3 py-2 rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-start gap-2";
+          btn.innerHTML = `<span class="shrink-0 mt-0.5 text-slate-400">📄</span><span class="leading-snug">${doc.title}</span>`;
+          btn.addEventListener('click', () => openDoc(doc.file, true));
+          btn.dataset.file = doc.file;
+          navList.appendChild(btn);
+        });
+      }
+
+      function highlightActive() {
+        const buttons = navList.querySelectorAll('button');
+        buttons.forEach(b => {
+          b.classList.remove('nav-active');
+          if (b.dataset.file === currentFile) b.classList.add('nav-active');
+        });
+      }
+
+      function buildToC() {
+        tocEl.innerHTML = '';
+        const headers = contentEl.querySelectorAll('h2, h3, h4');
+        headers.forEach(h => {
+          if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-');
+          const a = document.createElement('a');
+          a.href = `#${h.id}`;
+          a.textContent = h.textContent;
+          a.className = (h.tagName === 'H2') ? 'pl-0 font-medium' : (h.tagName === 'H3') ? 'pl-3' : 'pl-6 text-slate-500';
+          tocEl.appendChild(a);
+        });
+      }
+
+      function addCopyButtons() {
+        const blocks = contentEl.querySelectorAll('pre > code');
+        blocks.forEach(code => {
+          const pre = code.parentElement;
+          pre.style.position = 'relative';
+          const btn = document.createElement('button');
+          btn.textContent = 'Copy';
+          btn.className = 'copy-btn';
+          btn.addEventListener('click', async () => {
+            await navigator.clipboard.writeText(code.innerText);
+            const old = btn.textContent;
+            btn.textContent = 'Copied!';
+            setTimeout(()=> btn.textContent = old, 1200);
+          });
+          pre.appendChild(btn);
+        });
+      }
+
+      function shareBlock(file) {
+        const url = new URL(window.location.href);
+        url.hash = encodeURIComponent(file);
+        const link = url.toString();
+        return `<div class="not-prose mt-6 flex items-center justify-between gap-3">
+          <div class="text-xs text-slate-500 dark:text-slate-400">Source: <code>${file}</code></div>
+          <div class="flex items-center gap-2 font-controls"><select id="themeSelect" title="Theme" class="px-2 py-1 rounded-lg border border-slate-200 dark:border-slate-700 text-sm"><option value="sky">Sky</option><option value="emerald">Emerald</option><option value="violet">Violet</option></select><button id="layoutWide" class="text-sm btn">Wide</button><button id="layoutMax" class="text-sm btn">Max</button><button id="layoutCompact" class="text-sm btn">Compact</button><button id="openCmd" class="text-sm btn">⌘K</button><button id="installBtn" class="text-sm btn hidden">Install</button><button id="fontMinus" title="Smaller A" class="text-sm">A−</button><button id="fontPlus" title="Larger A" class="text-sm">A+</button>
+            <button class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onclick="navigator.clipboard.writeText('${link.replace(/'/g, "\\'")}').then(()=>{this.textContent='Link copied!'; setTimeout(()=>this.textContent='Share link',1500);});">
+              Share link
+            </button>
+            <button class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                    onclick="window.print()">
+              Print
+            </button>
+          </div>
+        </div>`;
+      }
+
+      function renderPrevNext() {
+        prevNextEl.innerHTML = '';
+        const i = docs.findIndex(d => d.file === currentFile);
+        const prev = docs[i-1];
+        const next = docs[i+1];
+        const left = prev ? `<button class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="openDoc('${prev.file}', true)">← ${prev.title}</button>` : '<span></span>';
+        const right = next ? `<button class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800" onclick="openDoc('${next.file}', true)">${next.title} →</button>` : '<span></span>';
+        prevNextEl.innerHTML = `${left}<span></span>${right}`;
+      }
+
+      async function openDoc(file, pushHash=false) {
+        try {
+          const res = await fetch(file);
+          let md = await res.text();
+          md = normalizeMarkdown(md);
+          md = normalizeMarkdown(md);
+          const html = marked.parse(md, { mangle: false, headerIds: true });
+          contentEl.innerHTML = html + shareBlock(file);
+          if (window.hljs) Array.from(contentEl.querySelectorAll('pre code')).forEach(el => hljs.highlightElement(el));
+          currentFile = file;
+          highlightActive();
+          buildToC(); addHeadingAnchors(); renderReadingMeta();
+          addCopyButtons();
+          renderPrevNext();
+          if (pushHash) location.hash = encodeURIComponent(file);
+          scrollTo(0, 0);
+          setProgress();
+        } catch (e) {
+          contentEl.innerHTML = `<div class="rounded-xl border border-rose-200 dark:border-rose-900 bg-rose-50/60 dark:bg-rose-950/30 p-4">
+            <h2 class="m-0 text-rose-700 dark:text-rose-300">Failed to load document</h2>
+            <p class="m-0 text-sm text-rose-600 dark:text-rose-400">Make sure the file exists: <code>${file}</code></p>
+          </div>`;
+        }
+      }
+
+      function filterNavByTitle(q) {
+        q = q.trim().toLowerCase();
+        const filtered = !q ? docs : docs.filter(d => d.title.toLowerCase().includes(q));
+        renderNav(filtered);
+        highlightActive();
+      }
+
+      // Lunr search across title + body
+      async function initSearch() {
+        const res = await fetch('search-index.json');
+        const data = await res.json();
+        docsMap = {}; data.forEach(d => docsMap[d.id] = d);
+        idx = lunr(function () {
+          this.ref('id');
+          this.field('title', { boost: 10 });
+          this.field('body');
+          data.forEach(doc => this.add(doc));
+        });
+        searchInput.addEventListener('input', (e) => {
+          const q = e.target.value.trim();
+          if (!q) return renderNav(docs), highlightActive();
+          try {
+            const results = idx.search(q);
+            const files = results.map(r => r.ref);
+            const items = docs.filter(d => files.includes(d.file));
+            renderNav(items);
+            highlightActive();
+          } catch (err) {
+            // If query syntax invalid, fallback to title filter
+            filterNavByTitle(q);
+          }
+        });
+      }
+
+      // Collapse toggle
+      let collapsed = false;
+      collapseBtn.addEventListener('click', () => {
+        collapsed = !collapsed;
+        navList.classList.toggle('hidden', collapsed);
+        collapseBtn.textContent = collapsed ? 'Expand' : 'Collapse';
+      });
+
+
+// Theme presets
+const THEMES = {
+  sky:  { primary:'#0ea5e9', grad:['#22d3ee','#60a5fa','#a78bfa'] },
+  emerald: { primary:'#10b981', grad:['#34d399','#22c55e','#a7f3d0'] },
+  violet: { primary:'#8b5cf6', grad:['#c4b5fd','#a78bfa','#8b5cf6'] }
+};
+const themeSelect = document.getElementById('themeSelect');
+function applyTheme(name) {
+  const t = THEMES[name] || THEMES.sky;
+  document.documentElement.style.setProperty('--brand-primary', t.primary);
+  document.documentElement.style.setProperty('--brand-grad-1', t.grad[0]);
+  document.documentElement.style.setProperty('--brand-grad-2', t.grad[1]);
+  document.documentElement.style.setProperty('--brand-grad-3', t.grad[2]);
+  localStorage.setItem('themePreset', name);
+  if (themeSelect) themeSelect.value = name;
+}
+const savedPreset = localStorage.getItem('themePreset') || 'sky';
+applyTheme(savedPreset);
+themeSelect && themeSelect.addEventListener('change', (e) => applyTheme(e.target.value));
+
+// Reading time indicator
+function calcReadingTime(text) {
+  const words = (text.trim().match(/\S+/g) || []).length;
+  const mins = Math.max(1, Math.round(words / 200)); // 200 wpm
+  return { words, mins };
+}
+function renderReadingMeta() {
+  const raw = document.getElementById('content').innerText || '';
+  const m = calcReadingTime(raw);
+  let meta = document.getElementById('readingMeta');
+  if (!meta) {
+    meta = document.createElement('div');
+    meta.id = 'readingMeta';
+    meta.className = 'not-prose text-xs text-slate-500 dark:text-slate-400 mb-3';
+    document.getElementById('content').prepend(meta);
+  }
+  meta.textContent = `${m.mins} min read • ${m.words} words`;
+}
+
+// Heading anchors
+function addHeadingAnchors() {
+  document.querySelectorAll('#content h2, #content h3, #content h4').forEach(h => {
+    if (!h.id) h.id = h.textContent.trim().toLowerCase().replace(/[^a-z0-9]+/g,'-');
+    if (h.querySelector('.anchor')) return;
+    const a = document.createElement('a');
+    a.href = `#${h.id}`;
+    a.className = 'anchor ml-2 text-slate-400 hover:text-sky-500 text-sm';
+    a.title = 'Copy link';
+    a.textContent = '#';
+    a.addEventListener('click', (e) => {
+      e.preventDefault();
+      const url = new URL(window.location.href);
+      url.hash = h.id;
+      navigator.clipboard.writeText(url.toString());
+    });
+    h.appendChild(a);
+  });
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', (e) => {
+  // Focus search on '/'
+  if (e.key === '/' && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    e.preventDefault();
+    const si = document.getElementById('searchInput'); si && si.focus();
+  }
+  // Prev/Next with [ and ]
+  if (['[',']'].includes(e.key) && !e.metaKey && !e.ctrlKey && !e.altKey) {
+    const i = docs.findIndex(d => d.file === currentFile);
+    if (e.key === '[' && i > 0) openDoc(docs[i-1].file, true);
+    if (e.key === ']' && i < docs.length - 1) openDoc(docs[i+1].file, true);
+  }
+});
+
+      // Load manifest and initialize
+      fetch('manifest.json')
+        .then(r => r.json())
+        .then(list => {
+          docs = list;
+          renderNav(docs);
+          initSearch();
+          const hash = decodeURIComponent(location.hash.slice(1));
+          const firstFile = (docs[0] && docs[0].file) || null;
+          if (hash && docs.some(d => d.file === hash)) {
+            openDoc(hash);
+          } else if (firstFile) {
+            openDoc(firstFile);
+          }
+        });
+
+      window.addEventListener('hashchange', () => {
+        const hash = decodeURIComponent(location.hash.slice(1));
+        if (hash && docs.some(d => d.file === hash)) openDoc(hash);
+      });
+    </script>
+  <button id="backToTop" class="btn text-sm" aria-label="Back to top">↑</button>
+<a href="#content" class="sr-only focus:not-sr-only absolute left-2 top-2 z-50 bg-white/90 dark:bg-slate-900/90 border border-slate-200 dark:border-slate-700 px-2 py-1 rounded">Skip to content</a>
+<div class="cmdk-backdrop" id="cmdkBackdrop"></div>
+<div class="cmdk" id="cmdk">
+  <input id="cmdkInput" type="text" placeholder="Search docs or type a command… (Ctrl/Cmd + K)">
+  <div class="cmdk-list" id="cmdkList"></div>
+</div>
+<script>
+  // Layout toggles
+  const layoutWide = document.getElementById('layoutWide');
+  const layoutMax = document.getElementById('layoutMax');
+  const layoutCompact = document.getElementById('layoutCompact');
+  function applyLayoutFlags() {
+    const flags = JSON.parse(localStorage.getItem('layoutFlags') || '{}');
+    document.body.classList.toggle('layout-wide', !!flags.wide);
+    document.body.classList.toggle('layout-max', !!flags.max);
+    document.body.classList.toggle('compact', !!flags.compact);
+  }
+  function setFlag(flag) {
+    const flags = JSON.parse(localStorage.getItem('layoutFlags') || '{}');
+    flags[flag] = !flags[flag];
+    if (flag === 'max' && flags.max) flags.wide = false; // max overrides wide
+    if (flag === 'wide' && flags.wide) flags.max = false;
+    localStorage.setItem('layoutFlags', JSON.stringify(flags));
+    applyLayoutFlags();
+  }
+  layoutWide && layoutWide.addEventListener('click', () => setFlag('wide'));
+  layoutMax && layoutMax.addEventListener('click', () => setFlag('max'));
+  layoutCompact && layoutCompact.addEventListener('click', () => setFlag('compact'));
+  applyLayoutFlags();
+
+  // Command palette
+  const cmdk = document.getElementById('cmdk');
+  const cmdkBackdrop = document.getElementById('cmdkBackdrop');
+  const cmdkInput = document.getElementById('cmdkInput');
+  const cmdkList = document.getElementById('cmdkList');
+  function openCmd() {
+    cmdk.style.display = 'block';
+    cmdkBackdrop.style.display = 'block';
+    setTimeout(() => cmdkInput.focus(), 50);
+    renderCmdList('');
+  }
+  function closeCmd() { cmdk.style.display='none'; cmdkBackdrop.style.display='none'; }
+  document.getElementById('openCmd').addEventListener('click', openCmd);
+  cmdkBackdrop.addEventListener('click', closeCmd);
+  document.addEventListener('keydown', (e) => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); openCmd(); }
+    if (e.key === 'Escape') closeCmd();
+  });
+  function renderCmdList(q) {
+    let results = [];
+    if (q) {
+      try { results = idx.search(q); } catch (e) { /* invalid query */ }
+    } else {
+      // default: all docs
+      results = docs.map(d => ({ ref: d.file, score: 1 }));
+    }
+    const items = results.slice(0, 20).map(r => docs.find(d => d.file === r.ref)).filter(Boolean);
+    cmdkList.innerHTML = items.map(d => `<div class="cmdk-item" data-file="${d.file}"><span>${d.title}</span><span class="text-slate-400 text-xs">${d.file.replace('content/','')}</span></div>`).join('');
+  }
+  cmdkInput.addEventListener('input', (e) => renderCmdList(e.target.value.trim()));
+  cmdkList.addEventListener('click', (e) => {
+    const item = e.target.closest('.cmdk-item');
+    if (item) { openDoc(item.dataset.file, true, cmdkInput.value.trim()); closeCmd(); }
+  });
+
+  // Search term highlighting in content
+  function highlightTerms(query) {
+    if (!query) return;
+    const root = document.getElementById('content');
+    const marks = root.querySelectorAll('mark.__hl'); marks.forEach(m => m.replaceWith(m.textContent));
+    const terms = query.split(/\s+/).filter(Boolean);
+    if (!terms.length) return;
+    const walker = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, null);
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const text = node.nodeValue;
+      if (!text || !text.trim()) return;
+      let replaced = false;
+      let html = text;
+      terms.forEach(t => {
+        const esc = t.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        html = html.replace(new RegExp('(\\b'+esc+'\\b)', 'gi'), '<mark class="__hl">$1</mark>');
+      });
+      if (html !== text) {
+        const span = document.createElement('span'); span.innerHTML = html; node.parentNode.replaceChild(span, node);
+      }
+    });
+  }
+
+  // Preload prev/next
+  function preloadNeighbors() {
+    const i = docs.findIndex(d => d.file === currentFile);
+    const prev = docs[i-1], next = docs[i+1];
+    [prev, next].filter(Boolean).forEach(d => fetch(d.file).catch(()=>{}));
+  }
+
+  // Install PWA prompt
+  let deferredPrompt = null;
+  const installBtn = document.getElementById('installBtn');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    installBtn.classList.remove('hidden');
+  });
+  installBtn && installBtn.addEventListener('click', async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    await deferredPrompt.userChoice;
+    deferredPrompt = null;
+    installBtn.classList.add('hidden');
+  });
+
+  // Extend openDoc to accept a query for highlighting
+  const __openDoc = openDoc;
+  openDoc = async function(file, pushHash=false, queryForHighlight='') {
+    await __openDoc(file, pushHash);
+    if (queryForHighlight) highlightTerms(queryForHighlight);
+    preloadNeighbors();
+  };
+
+  // Add "Edit on GitHub" when brand config provides repoEditBase
+  async function addEditOnGitHub(file) {
+    try {
+      const res = await fetch('assets/brand.config.json'); const cfg = await res.json();
+      if (!cfg.repoEditBase) return;
+      const editUrl = cfg.repoEditBase.replace(/\/$/,'/') + file;
+      const block = document.createElement('div');
+      block.className = 'not-prose mt-3';
+      block.innerHTML = `<a href="${editUrl}" target="_blank" class="px-3 py-1.5 rounded-xl border border-slate-200 dark:border-slate-700 text-sm hover:bg-slate-100 dark:hover:bg-slate-800">Edit this page on GitHub</a>`;
+      document.getElementById('content').appendChild(block);
+    } catch (e) {}
+  }
+  // Wrap again to inject edit link
+  const ___openDoc = openDoc;
+  openDoc = async function(file, pushHash=false, queryForHighlight='') {
+    await ___openDoc(file, pushHash, queryForHighlight);
+    addEditOnGitHub(file);
+  };
+</script>
+</body>
+<script>
+      // Font size controls
+      const fontPlus = document.getElementById('fontPlus');
+      const fontMinus = document.getElementById('fontMinus');
+      function getBase() { return parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--base-size')) || 16; }
+      function setBase(px) { document.documentElement.style.setProperty('--base-size', Math.max(14, Math.min(20, px)) + 'px'); localStorage.setItem('baseSize', Math.max(14, Math.min(20, px))); }
+      const savedBase = localStorage.getItem('baseSize'); if (savedBase) setBase(parseFloat(savedBase));
+      fontPlus && fontPlus.addEventListener('click', () => setBase(getBase() + 1));
+      fontMinus && fontMinus.addEventListener('click', () => setBase(getBase() - 1));
+
+      // Back to top
+      const btt = document.getElementById('backToTop');
+      const showBtt = () => { btt.style.display = (window.scrollY > 600) ? 'inline-flex' : 'none'; };
+      window.addEventListener('scroll', showBtt, { passive: true });
+      btt.addEventListener('click', () => window.scrollTo({ top:0, behavior:'smooth' }));
+
+      // Smooth ToC anchors
+      document.addEventListener('click', (e) => {
+        if (e.target.closest('.toc a')) {
+          const a = e.target.closest('a');
+          const id = a.getAttribute('href').slice(1);
+          const el = document.getElementById(id);
+          if (el) {
+            e.preventDefault();
+            window.history.pushState({}, '', '#' + id);
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        }
+      });
+
+      // Scrollspy for ToC (active section highlight)
+      const tocEl = document.getElementById('toc');
+      let tocObserver;
+      function initScrollSpy() {
+        if (!tocEl) return;
+        const links = Array.from(tocEl.querySelectorAll('a'));
+        const targets = links.map(a => document.getElementById(a.getAttribute('href').slice(1))).filter(Boolean);
+        if (tocObserver) tocObserver.disconnect();
+        tocObserver = new IntersectionObserver((entries) => {
+          entries.forEach(entry => {
+            const id = entry.target.id;
+            const link = tocEl.querySelector(`a[href="#${id}"]`);
+            if (entry.isIntersecting) {
+              tocEl.querySelectorAll('a').forEach(l => l.classList.remove('active'));
+              link && link.classList.add('active');
+            }
+          });
+        }, { rootMargin: '0px 0px -70% 0px', threshold: [0, 1.0] });
+        targets.forEach(t => tocObserver.observe(t));
+      }
+
+      // Re-init scrollspy whenever content changes
+      const contentEl = document.getElementById('content');
+      const prevOpenDoc = window.openDoc;
+      window.openDoc = async function(file, pushHash=false) {
+        await prevOpenDoc(file, pushHash);
+        setTimeout(initScrollSpy, 50);
+      }
+      // Initialize on first load
+      setTimeout(initScrollSpy, 300);
+    </script>
+</html>

@@ -1,0 +1,20 @@
+{
+  "siteTitle": "thanhdeptrai — Yocto Notes (VN)",
+  "siteSubtitle": "Tài liệu & hướng dẫn Yocto bằng tiếng Việt",
+  "primary": "#0ea5e9",
+  "gradient": [
+    "#22d3ee",
+    "#60a5fa",
+    "#a78bfa"
+  ],
+  "logo": {
+    "type": "image",
+    "src": "assets/logo-256.png"
+  },
+  "ogImage": "assets/og-image.png",
+  "favicon": "assets/favicon.png",
+  "githubUrl": "https://github.com/Thanhlearningcode/YOCTO",
+  "siteUrl": "https://Thanhlearningcode.github.io/YOCTO/",
+  "theme": "violet",
+  "repoEditBase": "https://github.com/Thanhlearningcode/YOCTO/edit/main/"
+}

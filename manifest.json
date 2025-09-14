@@ -1,0 +1,42 @@
+[
+  {
+    "title": "Tầm quan trọng của Yocto trong phát triển nhúng",
+    "file": "content/1-gi-i-thi-u-v-yocto-project.md"
+  },
+  {
+    "title": "Các thuật ngữ cơ bản trong Yocto (Raspberry Pi 4)",
+    "file": "content/2-c-c-thu-t-ng-quan-tr-ng-trong-yocto.md"
+  },
+  {
+    "title": "Xây dựng Image cho Raspberry Pi 4 với Yocto Project",
+    "file": "content/3-ch-y-gi-l-p-image-b-ng-qemu.md"
+  },
+  {
+    "title": "Xây dựng Image cho Raspberry Pi 4 với Yocto Project",
+    "file": "content/4-t-o-layer-n-gi-n-v-th-m-ch-ng-tr-nh-helloworld.md"
+  },
+  {
+    "title": "Devtool trong Yocto: Tạo, chỉnh sửa và kiểm thử recipe nhanh",
+    "file": "content/5-t-m-hi-u-v-devtool-trong-yocto.md"
+  },
+  {
+    "title": "Package Dependencies và Package Splitting trong Yocto",
+    "file": "content/6-package-dependencies-v-splitting-trong-yocto.md"
+  },
+  {
+    "title": "Hướng dẫn Build & Sử dụng **SDK Yocto** cho **Raspberry Pi 4 (raspberrypi4-64)**",
+    "file": "content/7-build-sdk-b-ng-yocto.md"
+  },
+  {
+    "title": "Xây dựng Image cho **Raspberry Pi 4** với Yocto Project",
+    "file": "content/8-build-image-cho-raspberry-pi-4.md"
+  },
+  {
+    "title": "Phát triển Kernel cho **Raspberry Pi 4** với Yocto Project (core-image-sato)",
+    "file": "content/9-quy-tr-nh-ph-t-tri-n-kernel-trong-yocto-project.md"
+  },
+  {
+    "title": "Kiểm tra locale hiện tại",
+    "file": "content/10-c-c-l-i-th-ng-g-p-khi-ph-t-tri-n-v-i-yocto-project-v-c-ch-kh-c-ph-c.md"
+  }
+]
