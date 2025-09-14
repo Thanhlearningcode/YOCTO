@@ -20,10 +20,11 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      # Site nằm ở ROOT repo (vì có index.html ngay tại đây)
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: yocto-site
+          path: .
 
   deploy:
     environment:
